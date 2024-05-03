@@ -116,5 +116,15 @@ namespace StcTestRouter.Models
             convertedValue = (T)args[1];
             return true;
         }
+
+        public override bool Equals(object? obj)
+        {
+            if(obj is DynamicSegment)
+            {
+                if ((obj as DynamicSegment)!.Name.Equals(Name) && (obj as DynamicSegment)!.Type == Type)
+                    return true;
+            }
+            return false;
+        }
     }
 }

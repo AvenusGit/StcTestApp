@@ -9,7 +9,7 @@ namespace StcRouterTests
     public class RouterWithT1Tests
     {
         [TestMethod]
-        public void AddRoute()
+        public void AddRouteTest()
         {
             Router router = new Router();
            
@@ -23,32 +23,33 @@ namespace StcRouterTests
             Assert.IsTrue(router.Routes.TryGetValue("/a/b/c/", out list));
             Assert.IsTrue(list.Count == 1);
             Assert.IsTrue(list?.FirstOrDefault()?.DynamicSegments?.Count() == 1);
+            Assert.IsTrue(list[0].DynamicSegments[0]?.Type == typeof(int));
         }
 
         [TestMethod]
-        public void AddRouteWithWrongParamsType()
+        public void AddRouteWithWrongParamsTypeTest()
         {
             Router router = new Router();
             var action = (int a) => {
-                Console.WriteLine("Вызван делегат из теста добавления маршрута с одним неверным параметром в шаблоне");
+                Console.WriteLine("Вызван делегат из теста добавления маршрута с одним параметром при неверном типе параметра");
             };
 
-            Assert.ThrowsException<RouterException>(() => router.RegisterRoute<int>("/a/b/c/{a:bool}/", action));            ;
+            Assert.ThrowsException<RouterParseException>(() => router.RegisterRoute<int>("/a/b/c/{a:bool}/", action));            ;
         }
 
         [TestMethod]
-        public void AddRouteWithWrongParamsCount()
+        public void AddRouteWithWrongParamsCountTest()
         {
             Router router = new Router();
             var action = (int a) => {
-                Console.WriteLine("Вызван делегат из теста добавления маршрута с одним неверным параметром в шаблоне");
+                Console.WriteLine("Вызван делегат из теста добавления маршрута с одним параметром при неверном количестве параметров");
             };
 
-            Assert.ThrowsException<RouterException>(() => router.RegisterRoute<int>("/a/b/c/{a:int}/{b:int}/", action)); ;
+            Assert.ThrowsException<RouterParseException>(() => router.RegisterRoute<int>("/a/b/c/{a:int}/{b:int}/", action)); ;
         }
 
         [TestMethod]
-        public void AddSameRoutes()
+        public void AddSameRoutesTest()
         {
             Router router = new Router();
             var action = (int a) =>
@@ -57,11 +58,11 @@ namespace StcRouterTests
             };
 
             router.RegisterRoute<int>("/a/b/c/{a:int}/", action);
-            Assert.ThrowsException<RouterException>(() => router.RegisterRoute("/a/b/c/{a:int}/", action));
+            Assert.ThrowsException<RouteExistException>(() => router.RegisterRoute("/a/b/c/{a:int}/", action));
         }
 
         [TestMethod]
-        public void CallRouteInt()
+        public void CallRouteIntTest()
         {
             Router router = new Router();
             int status = 0;
@@ -78,31 +79,31 @@ namespace StcRouterTests
         }
 
         [TestMethod]
-        public void CallRouteFloat()
+        public void CallRouteFloatTest()
         {
             Router router = new Router();
             float status = 0f;
             var action = (float newStatus) =>
             {
                 status = newStatus;
-                Console.WriteLine("Вызван делегат из теста вызова маршрута с одним параметром");
+                Console.WriteLine("Вызван делегат из теста вызова маршрута с одним параметром типа float");
             };
 
             router.RegisterRoute<float>("/a/b/c/{newStatus:float}/", action);
-            router.Route("/a/b/c/1,1/"); // тут важна запятая, т.к политика культуры и все такое
+            router.Route("/a/b/c/1,1/"); // тут важна запятая, т.к культура и все такое, культуру не обрабатывал
 
             Assert.IsTrue(status == 1.1f);
         }
 
         [TestMethod]
-        public void CallRouteString()
+        public void CallRouteStringTest()
         {
             Router router = new Router();
             string status = "old";
             var action = (string newStatus) =>
             {
                 status = newStatus;
-                Console.WriteLine("Вызван делегат из теста вызова маршрута с одним параметром");
+                Console.WriteLine("Вызван делегат из теста вызова маршрута с одним параметром типа string");
             };
 
             router.RegisterRoute<string>("/a/b/c/{status:string}/", action);
@@ -112,59 +113,20 @@ namespace StcRouterTests
         }
 
         [TestMethod]
-        public void CallRouteDateTime()
+        public void CallRouteDateTimeTest()
         {
             Router router = new Router();
             DateTime date = DateTime.Now;
-            var action = (DateTime date) =>
+            var action = (DateTime newDate) =>
             {
-                date = date.Subtract(new TimeSpan(1000,0,0,0,0,0));
-                Console.WriteLine("Вызван делегат из теста вызова маршрута с одним параметром");
+                date = newDate;
+                Console.WriteLine("Вызван делегат из теста вызова маршрута с одним параметром типа DateTime");
             };
 
             router.RegisterRoute<DateTime>("/a/b/c/{date:dateTime}/", action);
             router.Route("/a/b/c/2009-05-01 14:57:32.8/");
 
-            Assert.IsTrue(date.Year == 2007);
+            Assert.IsTrue(date.Year == 2009);
         }
-
-        [TestMethod]
-        public void CallWrongArgRoute()
-        {
-            Router router = new Router();
-            int status = 0;
-            var action = (int newStatus) =>
-            {
-                status = newStatus;
-                Console.WriteLine("Вызван делегат из теста вызова маршрута с одним параметром неверного типа");
-            };
-
-            router.RegisterRoute("/a/b/c/{newStatus:int}/", action);            
-
-            Assert.ThrowsException<RouterException>(() => router.Route("/a/b/c/true/"));
-        }
-
-        //[TestMethod]
-        //public void CallWrongRoute()
-        //{
-        //    Router router = new Router();
-        //    var action = () => {
-        //        Console.WriteLine("Вызван делегат из теста вызова отсутствующего маршрута без параметра");
-        //    };
-        //    router.RegisterRoute("/a/b/c/", action);
-        //    Assert.ThrowsException<RouterException>(() => router.Route("/A/B/C/"));           
-        //}
-
-        //[TestMethod]
-        //public void AddWrongTemplate()
-        //{
-        //    Router router = new Router();
-        //    var action = () => {
-        //        Console.WriteLine("Вызван делегат из теста добавления некорректного шаблона для маршрута без параметра");
-        //    };
-
-        //    Assert.ThrowsException<RouterException>(() => router.RegisterRoute("/a/b/c/{d:int}/", action));
-
-        //}
     }
 }

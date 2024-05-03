@@ -9,7 +9,7 @@ namespace StcRouterTests
     public class RouterWithoutParamsTests
     {
         [TestMethod]
-        public void AddRoute()
+        public void AddRouteTest()
         {
             Router router = new Router();
            
@@ -25,7 +25,7 @@ namespace StcRouterTests
         }
 
         [TestMethod]
-        public void AddSameRoutes()
+        public void AddSameRoutesTest()
         {
             Router router = new Router();
             var action = () => {
@@ -33,11 +33,12 @@ namespace StcRouterTests
             };
 
             router.RegisterRoute("/a/b/c/", action);
-            Assert.ThrowsException<RouterException>(() => router.RegisterRoute("/a/b/c/", action));
+
+            Assert.ThrowsException<RouteExistException>(() => router.RegisterRoute("/a/b/c/", action));
         }
 
         [TestMethod]
-        public void CallRoute()
+        public void CallRouteTest()
         {
             Router router = new Router();
             bool status = false;
@@ -53,25 +54,26 @@ namespace StcRouterTests
         }
 
         [TestMethod]
-        public void CallWrongRoute()
+        public void CallWrongRouteTest()
         {
             Router router = new Router();
             var action = () => {
                 Console.WriteLine("Вызван делегат из теста вызова отсутствующего маршрута без параметра");
             };
             router.RegisterRoute("/a/b/c/", action);
-            Assert.ThrowsException<RouterException>(() => router.Route("/A/B/C/"));           
+
+            Assert.ThrowsException<RouterNotFoundExceptions>(() => router.Route("/A/B/C/"));           
         }
 
         [TestMethod]
-        public void AddWrongTemplate()
+        public void AddWrongTemplateTest()
         {
             Router router = new Router();
             var action = () => {
                 Console.WriteLine("Вызван делегат из теста добавления некорректного шаблона для маршрута без параметра");
             };
 
-            Assert.ThrowsException<RouterException>(() => router.RegisterRoute("/a/b/c/{d:int}/", action));
+            Assert.ThrowsException<RouterParseException>(() => router.RegisterRoute("/a/b/c/{d:int}/", action));
             
         }
     }

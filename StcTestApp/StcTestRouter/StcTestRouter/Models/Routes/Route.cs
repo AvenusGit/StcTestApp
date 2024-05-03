@@ -86,29 +86,4 @@ namespace StcTestRouter.Models.Routes
             return true;
         }
     }
-
-
-
-    /// <summary>
-    /// Маршрут с одним параметром
-    /// </summary>
-    //public class Route<T> : Route
-    //{
-    //    public Route(string template, Action<T> action)
-    //    {
-
-    //    }
-    //    public new Action<T> Action { get; private set; }
-    //}
-    /// <summary>
-    /// Маршрут с двумя параметрами
-    /// </summary>
-    //public class Route<T1,T2> : Route
-    //{
-    //    public Route(string template, Action<T1,T2> action)
-    //    {
-
-    //    }
-    //    public new Action<T1,T2> Action { get; private set; }
-    //}
 }
