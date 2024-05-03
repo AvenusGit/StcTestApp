@@ -74,17 +74,17 @@ namespace StcTestRouter.Models.Routes
             return new object[0];
         }
 
-        public override void CallAction(params object[] parameters)
+        public override void CallAction(object[] parameters)
         {
             Action.Invoke();
         }
 
-        public override async Task CallActionAsync(CancellationToken cancellationToken, params object[] parameters)
+        public override async Task CallActionAsync(CancellationToken cancellationToken, object[] parameters)
         {
             await Task.Run(Action,cancellationToken);
         }
 
-        public override bool CanCallAction(params object[] parameters)
+        public override bool CanCallAction(object[] parameters)
         {
             if(parameters.Length != 0)
                 return false;

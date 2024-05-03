@@ -91,19 +91,19 @@ namespace StcTestRouter.Models.Routes
            return parameters.ToArray();
         }
 
-        public override bool CanCallAction(params object[] parameters)
+        public override bool CanCallAction(object[] parameters)
         {
             if (parameters.Length == 1 && parameters[0].GetType() == DynamicSegments.FirstOrDefault()?.Type)
                 return true;
             return false;
         }
 
-        public override void CallAction(params object[] parameters)
+        public override void CallAction(object[] parameters)
         {
             Action.Invoke((T)parameters[0]);
         }
 
-        public override async Task CallActionAsync(CancellationToken cancellationToken, params object[] parameters)
+        public override async Task CallActionAsync(CancellationToken cancellationToken, object[] parameters)
         {
             await Task.Run(() => Action.Invoke((T)parameters[0]),cancellationToken);
         }

@@ -62,7 +62,28 @@ namespace StcRouterTests
             Assert.ThrowsException<RouteExistException>(() => router.RegisterRoute("/a/b/c/{a:int}/{b:bool}/", action));
         }
 
+        [TestMethod]
+        public void CallRouteTest()
+        {
+            Router router = new Router();
+            int firstParam = 0;
+            bool secondParam = false;
+            var action = (int a, bool b) => {
+                Console.WriteLine("Вызван делегат из теста вызова маршрута с двумя параметрами");
+                firstParam = a;
+                secondParam = b;
+            };
+            router.RegisterRoute<int, bool>("/a/b/c/{a:int}/{b:bool}/", action);
+
+            router.Route("/a/b/c/4/true/");
+
+            Assert.IsTrue(firstParam == 4);
+            Assert.IsTrue(secondParam == true);
+
+        }
+
         // Тесты на парсинг конкретных типов смотри в RouteWithT1Tests
+
 
         [TestMethod]
         public void CallRouteAsyncTest()
@@ -82,6 +103,26 @@ namespace StcRouterTests
             router.RouteAsync("/a/b/c/2/4", token);
 
             Assert.IsTrue(startThreadId != actionThreadId); // тест иногда проваливается т.к. не всегда действие выполняет другой поток
+
+        }
+
+        [TestMethod]
+        public void ChangeOrderParamsTest()
+        {
+            Router router = new Router();
+            int firstParam = 0;
+            int secondParam = 0;
+            var action = (int a, int b) => {
+                firstParam = a;
+                secondParam = b;
+                Console.WriteLine("Вызван делегат из теста проверки смена порядка параметров");
+            };
+            router.RegisterRoute<int, int>("/a/b/c/{b:int}/{a:int}/", action);
+
+            router.Route("/a/b/c/1/2/");
+
+            Assert.IsTrue(firstParam == 2);
+            Assert.IsTrue(secondParam == 1);
 
         }
     }

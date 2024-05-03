@@ -23,7 +23,7 @@ namespace StcTestRouter.Models.Routes
             if(!RouteBase.CheckDynamicSegmentsTypes(dynamicSegments, new Type[] {typeof(T1), typeof(T2)}))
                 throw new RouterWrongParamsTypesExceptions();
 
-            StaticSegments = staticSegments;            
+            StaticSegments = staticSegments;
             DynamicSegments = dynamicSegments.ToList()!;
             Action = action;
         }
@@ -54,7 +54,7 @@ namespace StcTestRouter.Models.Routes
                     {
                         DynamicSegment? newDynamicSegment;
                         if(DynamicSegment.TryParse(segment,out newDynamicSegment))
-                            dynamicSegments.Add(newDynamicSegment);                        
+                            dynamicSegments.Add(newDynamicSegment);                     
                     }
                     else
                         staticSegments.Add(segment);
@@ -86,21 +86,46 @@ namespace StcTestRouter.Models.Routes
                 parameters.Add(firstParam!);
             else return null;
             if (DynamicSegment.TryConvertValue<T2>(args[1], out secondParam))
-                parameters.Add(firstParam!);
+                parameters.Add(secondParam!);
             else return null;
             return parameters.ToArray();
         }
 
-        public override bool CanCallAction(params object[] parameters)
+        public override bool CanCallAction(object[] parameters)
         {
             if (parameters.Length == 2 && parameters[0].GetType() == typeof(T1) && parameters[1].GetType() == typeof(T2))
                 return true;
             return false;
         }
 
-        public override void CallAction(params object[] parameters)
+        public override void CallAction(object[] parametersValues)
         {
-            Action.Invoke((T1)parameters[0], (T2)parameters[1]);
+            parametersValues = CheckCallActionByNameParameters(parametersValues);
+            Action.Invoke((T1)parametersValues[0], (T2)parametersValues[1]);
+        }
+
+        /// <summary>
+        /// Выставляет значения параметров маршрута в соответствии с именами вызываемого маршрутом метода
+        /// Если это возможно возвращает отсортированную по этому принципу коллекцию, если нет - первоначальную
+        /// </summary>
+        /// <param name="parametersValues">Значения параметров метода</param>
+        /// <returns></returns>
+        private object[] CheckCallActionByNameParameters(object[] parametersValues)
+        {
+            object[] sortedByNameParameterValues = new object[parametersValues.Length];
+            ParameterInfo[] actionParameters = Action.GetMethodInfo().GetParameters();
+            for (int i = 0; i < actionParameters.Length; i++)
+            {
+                for (int j = 0; j < DynamicSegments.Count; j++)
+                {
+                    if (actionParameters[i].Name == DynamicSegments[j]?.Name)
+                        sortedByNameParameterValues[i] = parametersValues[j];
+                }
+            }
+            // если не для всех динамических сегментов нашлось совпадение в параметрах метода по имени применяем как есть
+            if (sortedByNameParameterValues.Where(param => param == null).Count() > 0)
+                return parametersValues;
+            else return sortedByNameParameterValues;
         }
 
         public override async Task CallActionAsync(CancellationToken cancellationToken, params object[] parameters)

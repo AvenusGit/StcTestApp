@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -44,7 +45,7 @@ namespace StcTestRouter.Models.Routes
         /// </summary>
         /// <param name="args">Аргументы маршрута</param>
         /// <returns></returns>
-        public abstract object[]? GetActionParameters(string[] args); 
+        public abstract object[]? GetActionParameters(string[] args);
         /// <summary>
         /// Вызвать действие синхронно
         /// </summary>
@@ -81,9 +82,9 @@ namespace StcTestRouter.Models.Routes
         /// <returns></returns>
         public static bool CheckDynamicSegmentsTypes(DynamicSegment[] dynamicSegments, Type[] types)
         {
-            if(CheckDynamicSegmentsCount(dynamicSegments,(types is null ? 0 : types.Length)))
+            if (CheckDynamicSegmentsCount(dynamicSegments, (types is null ? 0 : types.Length)))
             {
-                for(int i = 0; i < dynamicSegments.Length; i++)
+                for (int i = 0; i < dynamicSegments.Length; i++)
                 {
                     if (dynamicSegments[i].Type != types[i])
                         return false;
