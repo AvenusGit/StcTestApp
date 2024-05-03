@@ -37,5 +37,10 @@ namespace StcTestRouter.Interfaces
         /// </summary>
         /// <param name="route">Строка маршрута</param>
         void Route(string route);
+        /// <summary>
+        /// Асинхронный вызов метода, соответствующего маршруту
+        /// </summary>
+        /// <param name="route"></param>
+        Task RouteAsync(string route, CancellationToken cancellationToken);
     }
 }

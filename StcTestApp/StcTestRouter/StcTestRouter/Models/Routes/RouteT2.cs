@@ -102,5 +102,10 @@ namespace StcTestRouter.Models.Routes
         {
             Action.Invoke((T1)parameters[0], (T2)parameters[1]);
         }
+
+        public override async Task CallActionAsync(CancellationToken cancellationToken, params object[] parameters)
+        {
+            await Task.Run(() => Action.Invoke((T1)parameters[0], (T2)parameters[1]), cancellationToken);
+        }
     }
 }

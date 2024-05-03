@@ -1,12 +1,6 @@
 ﻿using StcTestRouter.Exceptions;
 using StcTestRouter.Interfaces;
 using StcTestRouter.Models.Routes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StcTestRouter.Models
 {
@@ -116,7 +110,28 @@ namespace StcTestRouter.Models
                 throw new RouterNotFoundExceptions();
 
         }
-
+        /// <summary>
+        /// Асинхронный вызов метода, соответствующего маршруту
+        /// </summary>
+        /// <param name="route">Строка - вызываемый маршрут</param>
+        /// <param name="cancellationToken">Токен отмены асинхронной операции</param>
+        /// <returns></returns>
+        /// <exception cref="RouterNotFoundExceptions"></exception>
+        public async Task RouteAsync(string route, CancellationToken cancellationToken)
+        {
+            string[] segments = route.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            (RouteBase, object[])? searchResult = FindRoute(segments);
+            if (searchResult.HasValue)
+                await searchResult.Value.Item1.CallActionAsync(cancellationToken, searchResult.Value.Item2);
+            else
+                throw new RouterNotFoundExceptions();
+        }
+        /// <summary>
+        /// Поиск подходящего маршрута, рекурсивный метод
+        /// </summary>
+        /// <param name="segments">Массив сегментов маршрута</param>
+        /// <param name="lastStaticSegmentLenght">Сколько сегментов считать статическими</param>
+        /// <returns>Кортеж из найденного маршрута и готового набора параметров для вызова метода</returns>
         private (RouteBase, object[])? FindRoute(string[] segments, int lastStaticSegmentLenght = -1)
         {
             if (lastStaticSegmentLenght == 0) return null;
@@ -125,7 +140,7 @@ namespace StcTestRouter.Models
             Span<string> dynamicSegments = segments.AsSpan<string>(lastStaticSegmentLenght, segments.Length - lastStaticSegmentLenght);
 
             List<RouteBase> targetRoutes = new List<RouteBase>();
-            if(Routes.TryGetValue(Router.GetFullSegmentString(staticSegments.ToArray()),out targetRoutes))
+            if(Routes.TryGetValue(RouteBase.GetFullSegmentString(staticSegments.ToArray()),out targetRoutes))
             {
                 foreach (RouteBase route in targetRoutes)
                 {
@@ -135,17 +150,6 @@ namespace StcTestRouter.Models
                 }                    
             }
             return FindRoute(segments, lastStaticSegmentLenght - 1);
-        }
-
-        /// <summary>
-        /// Возвращает полную строку с разделителями статических сегментов
-        /// </summary>
-        /// <param name="segments">Статичествие сегменты</param>
-        /// <returns></returns>
-        private static string GetFullSegmentString(IEnumerable<string> segments)
-        {
-            StringBuilder stringBuilder = new StringBuilder();
-            return "/" + stringBuilder.AppendJoin('/', segments) + "/";
         }
     }
 }

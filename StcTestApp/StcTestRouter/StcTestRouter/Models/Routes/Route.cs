@@ -79,6 +79,11 @@ namespace StcTestRouter.Models.Routes
             Action.Invoke();
         }
 
+        public override async Task CallActionAsync(CancellationToken cancellationToken, params object[] parameters)
+        {
+            await Task.Run(Action,cancellationToken);
+        }
+
         public override bool CanCallAction(params object[] parameters)
         {
             if(parameters.Length != 0)

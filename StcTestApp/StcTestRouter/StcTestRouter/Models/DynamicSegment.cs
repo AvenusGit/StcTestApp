@@ -40,7 +40,12 @@ namespace StcTestRouter.Models
             Regex regex = new Regex("^\\{[\\s\\S]*\\:(int|string|float|dateTime|bool)\\}$");
             return regex.IsMatch(segmentTemplate);
         }
-
+        /// <summary>
+        /// Получить тип по его текстовому описанию из шаблона
+        /// </summary>
+        /// <param name="typeName">Текстовое описание</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public static Type GetTypeByString(string typeName)
         {
             switch (typeName)
@@ -75,8 +80,13 @@ namespace StcTestRouter.Models
                 return false;
             }
         }
-
-
+        /// <summary>
+        /// Метод, используя рефлексию, пытается проверить наличие у типа Т метода на парсинг объекта из строки и применить его к подаваемой на вход строке
+        /// </summary>
+        /// <typeparam name="T">Тип объекта</typeparam>
+        /// <param name="stringValue">Строковое значение объекта</param>
+        /// <param name="convertedValue">Результат парсинга</param>
+        /// <returns>True - если парсинг удался, иначе false</returns>
         public static bool TryConvertValue<T>(string stringValue, out T convertedValue)
         {
             var targetType = typeof(T);

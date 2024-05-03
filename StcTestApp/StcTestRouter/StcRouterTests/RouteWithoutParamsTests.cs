@@ -76,5 +76,26 @@ namespace StcRouterTests
             Assert.ThrowsException<RouterParseException>(() => router.RegisterRoute("/a/b/c/{d:int}/", action));
             
         }
+
+        [TestMethod]
+        public void CallRouteAsyncTest()
+        {
+            Router router = new Router();
+            int startThreadId = Thread.CurrentThread.ManagedThreadId;
+            int actionThreadId = Thread.CurrentThread.ManagedThreadId;
+            var action = () => {
+                Console.WriteLine("¬ызван делегат из теста добавлени€ некорректного шаблона дл€ маршрута без параметра");
+                actionThreadId = Thread.CurrentThread.ManagedThreadId;
+            };
+
+            router.RegisterRoute("/a/b/c/", action);
+            CancellationTokenSource tokenSourse = new CancellationTokenSource();
+            CancellationToken token =  tokenSourse.Token;
+
+            router.RouteAsync("/a/b/c/", token);
+
+            Assert.IsTrue(startThreadId != actionThreadId); // тест иногда проваливаетс€ т.к. не всегда действие выполн€ет другой поток
+
+        }
     }
 }
