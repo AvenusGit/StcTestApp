@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("StcTestRouter")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+246c145726b246b03c6c2f491ba8af4a5f870f89")]
 [assembly: System.Reflection.AssemblyProductAttribute("StcTestRouter")]
 [assembly: System.Reflection.AssemblyTitleAttribute("StcTestRouter")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

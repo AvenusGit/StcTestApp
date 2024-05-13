@@ -1,0 +1,12 @@
+C:\Projects\PET\StcTestApp\StcTestApp\StcTestRouter\StcTestRouter\bin\Debug\net8.0\StcTestRouter.deps.json
+C:\Projects\PET\StcTestApp\StcTestApp\StcTestRouter\StcTestRouter\bin\Debug\net8.0\StcTestRouter.dll
+C:\Projects\PET\StcTestApp\StcTestApp\StcTestRouter\StcTestRouter\bin\Debug\net8.0\StcTestRouter.pdb
+C:\Projects\PET\StcTestApp\StcTestApp\StcTestRouter\StcTestRouter\obj\Debug\net8.0\StcTestRouter.GeneratedMSBuildEditorConfig.editorconfig
+C:\Projects\PET\StcTestApp\StcTestApp\StcTestRouter\StcTestRouter\obj\Debug\net8.0\StcTestRouter.AssemblyInfoInputs.cache
+C:\Projects\PET\StcTestApp\StcTestApp\StcTestRouter\StcTestRouter\obj\Debug\net8.0\StcTestRouter.AssemblyInfo.cs
+C:\Projects\PET\StcTestApp\StcTestApp\StcTestRouter\StcTestRouter\obj\Debug\net8.0\StcTestRouter.csproj.CoreCompileInputs.cache
+C:\Projects\PET\StcTestApp\StcTestApp\StcTestRouter\StcTestRouter\obj\Debug\net8.0\StcTestRouter.sourcelink.json
+C:\Projects\PET\StcTestApp\StcTestApp\StcTestRouter\StcTestRouter\obj\Debug\net8.0\StcTestRouter.dll
+C:\Projects\PET\StcTestApp\StcTestApp\StcTestRouter\StcTestRouter\obj\Debug\net8.0\refint\StcTestRouter.dll
+C:\Projects\PET\StcTestApp\StcTestApp\StcTestRouter\StcTestRouter\obj\Debug\net8.0\StcTestRouter.pdb
+C:\Projects\PET\StcTestApp\StcTestApp\StcTestRouter\StcTestRouter\obj\Debug\net8.0\ref\StcTestRouter.dll
