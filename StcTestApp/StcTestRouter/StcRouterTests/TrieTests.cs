@@ -19,27 +19,60 @@ namespace StcRouterTests
             TrieNode<int>? first = trie.RootNodes.Find(node => node.Key == "a");
             Assert.IsTrue(first?.Key == "a" && !first.HasValue);
             TrieNode<int>? second = first.GetChildrenByKey("b");
-            Assert.IsTrue(second?.Key == "b" && second.Value == 87);
+            Assert.IsTrue(second?.Key == "b" && second.HasValue && second.Value == 87);
+            Assert.ThrowsException<RouteExistException> (() => trie.Add(["a", "b"], 87));
+            Assert.ThrowsException<RouterException>(() => trie.Add(null!, 87));
         }
 
         [TestMethod]
         public void TryAddTest()
         {
+            Trie<int> trie = new Trie<int>();
+
+            Assert.IsTrue(trie.TryAdd(["a", "b"], 87));
+            Assert.IsFalse(trie.TryAdd(["a", "b"], 87));
+            Assert.IsFalse(trie.TryAdd(null!, 87));
         }
 
         [TestMethod]
         public void GetValueTest()
         {
+            Trie<int> trie = new Trie<int>();
+
+            trie.Add(["a", "b"], 102);
+            Assert.AreEqual(trie.GetValue(["a", "c"]), default(int));
+            Assert.IsTrue(trie.GetValue(["a", "b"]) == 102);
+
+            Trie<string> stringTrie = new Trie<string>();
+            stringTrie.Add(["x", "y"], "testValue");
+            Assert.IsNull(stringTrie.GetValue(["a", "c"]));
+            Assert.IsTrue(stringTrie.GetValue(["x", "y"]) == "testValue");
         }
 
         [TestMethod]
         public void RemoveTest()
         {
+
+        }
+
+        [TestMethod]
+        public void NodeExistTest()
+        {
+            Trie<int> trie = new Trie<int>();
+            trie.Add(["a", "b"], 102);
+
+            Assert.IsTrue(trie.NodeExist(["a", "b"]));
+            Assert.IsFalse(trie.NodeExist(["a", "c"]));
         }
 
         [TestMethod]
         public void NodeWithValueExistTest()
         {
+            Trie<int> trie = new Trie<int>();
+            trie.Add(["a", "b", "c"], 100);
+
+            Assert.IsTrue(trie.NodeWithValueExist(["a", "b", "c"]));
+            Assert.IsFalse(trie.NodeWithValueExist(["a", "b"]));
         }
     }
 }

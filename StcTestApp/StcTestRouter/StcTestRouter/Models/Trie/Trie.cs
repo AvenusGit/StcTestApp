@@ -26,8 +26,10 @@ namespace StcTestRouter.Models.Trie
                 if (currentNode is null)
                 {
                     currentNode = new TrieNode<T>(currentKey);
+                    RootNodes.Add(currentNode);
                     continue;
                 }
+                if (currentNode.Key == currentKey) continue;
                 if (!currentNode.HasChildrenByKey(currentKey))
                     currentNode.AddChildren(currentKey);
                 currentNode = currentNode.GetChildrenByKey(currentKey)!;
@@ -48,18 +50,20 @@ namespace StcTestRouter.Models.Trie
                 if (currentNode is null)
                 {
                     currentNode = new TrieNode<T>(currentKey);
+                    RootNodes.Add(currentNode);
                     continue;
                 }
+                if (currentNode.Key == currentKey) continue;
                 if (!currentNode.HasChildrenByKey(currentKey))
                     currentNode.AddChildren(currentKey);
                 currentNode = currentNode.GetChildrenByKey(currentKey)!;
             }
             if (currentNode!.HasValue)
                 return false;
-            else 
-            { 
-                currentNode!.Value = newValue; 
-                return true; 
+            else
+            {
+                currentNode!.Value = newValue;
+                return true;
             }
         }
 
@@ -70,12 +74,13 @@ namespace StcTestRouter.Models.Trie
             TrieNode<T>? currentNode = RootNodes.Find(node => node.Key == keys![0]);
             for (int i = 0; i < keys.Length; i++)
             {
-                string currentKey = keys[i];
-                if (currentNode is null || !currentNode.HasChildrenByKey(currentKey))
-                    return default(T);
+                string currentKey = keys[i];                
+                if (currentNode is null) return default(T);
+                if (currentNode.Key == currentKey) continue;
+                if(!currentNode.HasChildrenByKey(currentKey)) return default(T);
                 currentNode = currentNode.GetChildrenByKey(currentKey)!;
             }
-            return currentNode.Value;
+            return currentNode!.Value;
         }
 
         public void Remove(string[] keys)
@@ -97,19 +102,36 @@ namespace StcTestRouter.Models.Trie
                 currentNode = null;
         }
 
-        public bool NodeWithValueExist (string[] keys)
+        public bool NodeExist(string[] keys)
         {
             if (keys is null || keys?.Length == 0) return false;
-
             TrieNode<T>? currentNode = RootNodes.Find(node => node.Key == keys![0]);
             for (int i = 0; i < keys.Length; i++)
             {
                 string currentKey = keys[i];
-                if (currentNode is null || !currentNode.HasChildrenByKey(currentKey))
-                    return false;
-                currentNode = currentNode.GetChildrenByKey(currentKey)!;
+                if (currentNode is null) return false;
+                if (currentNode.Key == currentKey) continue;
+                if (currentNode.HasChildrenByKey(currentKey))
+                    currentNode = currentNode.GetChildrenByKey(currentKey)!;
+                else return false;
             }
-            return currentNode is null ? false : currentNode.HasValue;
+            return currentNode is not null;
+        }
+
+        public bool NodeWithValueExist (string[] keys)
+        {
+            if (keys is null || keys?.Length == 0) return false;
+            TrieNode<T>? currentNode = RootNodes.Find(node => node.Key == keys![0]);
+            for (int i = 0; i < keys.Length; i++)
+            {
+                string currentKey = keys[i];
+                if (currentNode is null) return false;
+                if (currentNode.Key == currentKey) continue;
+                if (currentNode.HasChildrenByKey(currentKey))
+                    currentNode = currentNode.GetChildrenByKey(currentKey)!;
+                else return false;
+            }
+            return currentNode is not null ? currentNode.HasValue : false;
         }
     }
 }

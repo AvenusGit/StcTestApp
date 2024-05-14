@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,20 +17,22 @@ namespace StcTestRouter.Models.Trie
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
-        public TrieNode(string key)
+        public TrieNode(string key) 
         {
             Key = key;
+            HasValue = false;
         }
 
-        public TrieNode(string key, T? value)
+        public TrieNode(string key, T value)
         {
             Key = key;
             Value = value;
             Childrens = Childrens;
+            HasValue = true;
         }
         private T? _value;
         public string Key { get; set; }
-        public T? Value
+        public  T? Value
         {
             get
             {
@@ -38,7 +41,7 @@ namespace StcTestRouter.Models.Trie
             set
             {
                 _value = value;
-                 HasValue = _value == null;
+                 HasValue = value != null;
             }
         }
         public List<TrieNode<T>> Childrens { get; set; } = new List<TrieNode<T>>();
@@ -91,6 +94,11 @@ namespace StcTestRouter.Models.Trie
                     return true;
             }
             return false;
+        }
+
+        public override string ToString()
+        {
+            return $"Key:{Key},Childrens:{Childrens.Count}, Value:{Value?.ToString()}";
         }
     }
 }

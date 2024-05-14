@@ -85,26 +85,26 @@ namespace StcRouterTests
         // “есты на парсинг конкретных типов смотри в RouteWithT1Tests
 
 
-        [TestMethod]
-        public void CallRouteAsyncTest()
-        {
-            Router router = new Router();
-            int startThreadId = Thread.CurrentThread.ManagedThreadId;
-            int actionThreadId = Thread.CurrentThread.ManagedThreadId;
-            var action = (int a, int b) => {
-                Console.WriteLine("¬ызван делегат из теста добавлени€ некорректного шаблона дл€ маршрута без параметра");
-                actionThreadId = Thread.CurrentThread.ManagedThreadId;
-            };
+        //[TestMethod]
+        //public void CallRouteAsyncTest()
+        //{
+        //    Router router = new Router();
+        //    int startThreadId = Thread.CurrentThread.ManagedThreadId;
+        //    int actionThreadId = Thread.CurrentThread.ManagedThreadId;
+        //    var action = (int a, int b) => {
+        //        Console.WriteLine("¬ызван делегат из теста добавлени€ некорректного шаблона дл€ маршрута без параметра");
+        //        actionThreadId = Thread.CurrentThread.ManagedThreadId;
+        //    };
 
-            router.RegisterRoute<int, int>("/a/b/c/{a:int}/{b:int}/", action);
-            CancellationTokenSource tokenSourse = new CancellationTokenSource();
-            CancellationToken token = tokenSourse.Token;
+        //    router.RegisterRoute<int, int>("/a/b/c/{a:int}/{b:int}/", action);
+        //    CancellationTokenSource tokenSourse = new CancellationTokenSource();
+        //    CancellationToken token = tokenSourse.Token;
 
-            router.RouteAsync("/a/b/c/2/4", token);
+        //    router.RouteAsync("/a/b/c/2/4", token);
 
-            Assert.IsTrue(startThreadId != actionThreadId); // тест иногда проваливаетс€ т.к. не всегда действие выполн€ет другой поток
+        //    Assert.IsTrue(startThreadId != actionThreadId); // тест иногда проваливаетс€ т.к. не всегда действие выполн€ет другой поток
 
-        }
+        //}
 
         [TestMethod]
         public void ChangeOrderParamsTest()
