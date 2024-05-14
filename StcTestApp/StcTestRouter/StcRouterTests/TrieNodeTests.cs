@@ -61,8 +61,8 @@ namespace StcRouterTests
             TrieNode<int> parent = new TrieNode<int>("parent", 47);
             parent.AddChildren(children);
 
-            Assert.IsTrue(parent.HasChildrenByKey("children").Equals(children));
-            Assert.IsFalse(parent.HasChildrenByKey("children").Equals(parent));
+            Assert.IsTrue(parent.GetChildrenByKey("children")?.Equals(children));
+            Assert.IsFalse(parent.GetChildrenByKey("children")?.Equals(parent));
         }
 
         [TestMethod]

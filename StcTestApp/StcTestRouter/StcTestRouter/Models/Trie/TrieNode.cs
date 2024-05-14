@@ -27,9 +27,20 @@ namespace StcTestRouter.Models.Trie
             Value = value;
             Childrens = Childrens;
         }
-
+        private T? _value;
         public string Key { get; set; }
-        public T? Value { get; set; }
+        public T? Value
+        {
+            get
+            {
+                return _value;
+            }
+            set
+            {
+                _value = value;
+                 HasValue = _value == null;
+            }
+        }
         public List<TrieNode<T>> Childrens { get; set; } = new List<TrieNode<T>>();
 
         public void AddChildren (string key)
@@ -66,13 +77,7 @@ namespace StcTestRouter.Models.Trie
                 return true;
             }
         }
-        public bool HasValue
-        {
-            get
-            {
-                return Value != null;
-            }
-        }
+        public bool HasValue { get; set; }
 
         public override bool Equals(object? obj)
         {

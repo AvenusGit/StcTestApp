@@ -37,7 +37,7 @@ namespace StcTestRouter.Models.Trie
             else currentNode!.Value = newValue;
         }
 
-        public bool TryAddRoute(string[] keys, T newValue)
+        public bool TryAdd(string[] keys, T newValue)
         {
             if (keys is null || keys?.Length == 0)
                 return false;
