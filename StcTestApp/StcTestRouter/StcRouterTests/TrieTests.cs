@@ -50,9 +50,16 @@ namespace StcRouterTests
         }
 
         [TestMethod]
-        public void RemoveTest()
+        public void GetNodeTest() 
         {
+            Trie<int> trie = new Trie<int>();
+            trie.Add(["a", "b"], 102);
 
+            TrieNode<int>? node = trie.GetNode(["a", "b"]);
+
+            Assert.IsNotNull(node);
+            Assert.IsTrue(node.HasValue);
+            Assert.IsTrue(node.Key == "b" && node.Value == 102);
         }
 
         [TestMethod]

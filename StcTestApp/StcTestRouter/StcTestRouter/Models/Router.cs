@@ -1,6 +1,7 @@
 ﻿using StcTestRouter.Exceptions;
 using StcTestRouter.Interfaces;
 using StcTestRouter.Models.Routes;
+using StcTestRouter.Models.Trie;
 
 namespace StcTestRouter.Models
 {
@@ -14,21 +15,13 @@ namespace StcTestRouter.Models
         /// </summary>
         public Router() 
         {
-            Routes = new Dictionary<string, List<RouteBase>>();
+            RouterTree = new Trie<List<RouteBase>>();
         }
         /// <summary>
-        /// Конструктор маршрутизатора с готовым списком маршрутов
+        /// Префиксное дерево маршрутов. Каждый узел имеет ключ в виде строки (не char!), значение подразумевает словарь маршрутов, где ключ - массив типов параметров маршрутов,
+        /// значение - сам маршрут. Несколько маршрутов с одним и тем же набором статических сегментов и набором параметров (в том числе и по последовательности) быть не должно
         /// </summary>
-        /// <param name="routes">Словарь маршрутов</param>
-        public Router(Dictionary<string, List<RouteBase>> routes)
-        {
-            Routes = routes;
-        }
-        /// <summary>
-        /// Словарь маршрутов. Ключ - полный набор статических сегментов с разделителями. Значение - список маршрутов, с одинаковым и соответствующим ключу 
-        /// набором статических сегментов, но разными наборами сегментов динамических
-        /// </summary>
-        public Dictionary<string, List<RouteBase>> Routes { get; set; }
+        public Trie<List<RouteBase>> RouterTree { get; set; }
 
         public void RegisterRoute(string template, Action action)
         {
@@ -37,20 +30,24 @@ namespace StcTestRouter.Models
             {
                 if (route!.DynamicSegments?.Count != 0)
                     throw new RouterWrongParamsCountExceptions();
-
-                List<RouteBase>? routes;
-                if (Routes.TryGetValue(route!.GetFullStaticSegments(), out routes))
+                TrieNode<List<RouteBase>>? node = RouterTree.GetNode(RouteBase.GetSplittedStaticSegments(route.GetFullStaticSegments()));
+                if (node is null)
                 {
-                    if (routes.Where(
-                        existRoute => route.Equals(existRoute))
-                        .Count() > 0)
-                        throw new RouteExistException();
-                    routes.Add(route);
+                    if (!RouterTree.TryAdd(RouteBase.GetSplittedStaticSegments(route.GetFullStaticSegments()), new List<RouteBase>() { route }))
+                        throw new RouterException("Не удалось добавить ноду, неизвестная ошибка");
                 }
                 else
                 {
-                    Routes.Add(route.GetFullStaticSegments(), new List<RouteBase>() { route });
-                }
+                    if (node.HasValue)
+                    {
+                        foreach (RouteBase savedRoute in node.Value!)
+                            if(savedRoute.Equals(route))
+                                throw new RouteExistException();
+                        node.Value?.Add(route);
+                    }                        
+                    else
+                        node.Value = new List<RouteBase>() { route};
+                } 
             }
             else
                 throw new RouterParseException();
@@ -58,20 +55,28 @@ namespace StcTestRouter.Models
 
         public void RegisterRoute<T>(string template, Action<T> action)
         {
-            Route<T> newRoute;
-            if (Route<T>.TryParse(template, action, out newRoute))
+            Route<T>? route;
+            if (Models.Routes.Route<T>.TryParse(template, action, out route))
             {
-                List<RouteBase>? routes;
-                if (Routes.TryGetValue(newRoute!.GetFullStaticSegments(), out routes))
+                if (route!.DynamicSegments?.Count != 1)
+                    throw new RouterWrongParamsCountExceptions();
+                TrieNode<List<RouteBase>>? node = RouterTree.GetNode(RouteBase.GetSplittedStaticSegments(route.GetFullStaticSegments()));
+                if (node is null)
                 {
-                    if (routes.Where(existRoute => existRoute.Equals(newRoute))
-                        .Count() > 0)
-                        throw new RouteExistException();
-                    routes.Add(newRoute);
+                    if (!RouterTree.TryAdd(RouteBase.GetSplittedStaticSegments(route.GetFullStaticSegments()), new List<RouteBase>() { route }))
+                        throw new RouterException("Не удалось добавить ноду, неизвестная ошибка");
                 }
                 else
                 {
-                    Routes.Add(newRoute.GetFullStaticSegments(), new List<RouteBase>() { newRoute });
+                    if (node.HasValue)
+                    {
+                        foreach (RouteBase savedRoute in node.Value!)
+                            if (savedRoute.Equals(route))
+                                throw new RouteExistException();
+                        node.Value?.Add(route);
+                    }
+                    else
+                        node.Value = new List<RouteBase>() { route };
                 }
             }
             else
@@ -80,26 +85,38 @@ namespace StcTestRouter.Models
 
         public void RegisterRoute<T1, T2>(string template, Action<T1, T2> action)
         {
-            Route<T1,T2> newRoute;
-            if (Route<T1,T2>.TryParse(template, action, out newRoute))
+            Route<T1, T2>? route;
+            if (Models.Routes.Route<T1, T2>.TryParse(template, action, out route))
             {
-                List<RouteBase>? routes;
-                if (Routes.TryGetValue(newRoute!.GetFullStaticSegments(), out routes))
+                if (route!.DynamicSegments?.Count != 2)
+                    throw new RouterWrongParamsCountExceptions();
+                TrieNode<List<RouteBase>>? node = RouterTree.GetNode(RouteBase.GetSplittedStaticSegments(route.GetFullStaticSegments()));
+                if (node is null)
                 {
-                    if (routes.Where(existRoute => existRoute.Equals(newRoute))
-                        .Count() > 0)
-                        throw new RouteExistException();
-                    routes.Add(newRoute);
+                    if (!RouterTree.TryAdd(RouteBase.GetSplittedStaticSegments(route.GetFullStaticSegments()), new List<RouteBase>() { route }))
+                        throw new RouterException("Не удалось добавить ноду, неизвестная ошибка");
                 }
                 else
                 {
-                    Routes.Add(newRoute.GetFullStaticSegments(), new List<RouteBase>() { newRoute });
+                    if (node.HasValue)
+                    {
+                        foreach (RouteBase savedRoute in node.Value!)
+                            if (savedRoute.Equals(route))
+                                throw new RouteExistException();
+                        node.Value?.Add(route);
+                    }
+                    else
+                        node.Value = new List<RouteBase>() { route };
                 }
             }
             else
                 throw new RouterParseException();
         }
-
+        /// <summary>
+        /// Вызов маршрута
+        /// </summary>
+        /// <param name="route">Строка маршрута</param>
+        /// <exception cref="RouterNotFoundExceptions">Исключение в случае отсутствия подходящего маршрута</exception>
         public void Route(string route)
         {            
             string[] segments = route.Split('/', StringSplitOptions.RemoveEmptyEntries);
@@ -126,32 +143,33 @@ namespace StcTestRouter.Models
             else
                 throw new RouterNotFoundExceptions();
         }
+
         /// <summary>
-        /// Поиск подходящего маршрута, рекурсивный метод.
-        /// Метод последовательно ищет подходящий маршрут, с каждой итерацией меняя статус последнего статического сегмента на динамический,
+        /// Поиск подходящего маршрута. Метод последовательно ищет подходящий маршрут, с каждой итерацией меняя статус последнего статического сегмента на динамический,
         /// т.к. в наборе сегментов нет возможности сразу понять какой сегмент статический (строка), а какой динамический (например типа string).
+        /// 
         /// </summary>
         /// <param name="segments">Массив сегментов маршрута</param>
-        /// <param name="lastStaticSegmentLenght">Сколько сегментов считать статическими</param>
         /// <returns>Кортеж из найденного маршрута и готового набора параметров для вызова метода</returns>
-        private (RouteBase, object[])? FindRoute(string[] segments, int lastStaticSegmentLenght = -1)
+        private (RouteBase, object[])? FindRoute(string[] segments)
         {
-            if (lastStaticSegmentLenght == 0) return null;
-            if(lastStaticSegmentLenght == -1) lastStaticSegmentLenght = segments.Length;
-            Span<string> staticSegments = segments.AsSpan<string>(0, lastStaticSegmentLenght);
-            Span<string> dynamicSegments = segments.AsSpan<string>(lastStaticSegmentLenght, segments.Length - lastStaticSegmentLenght);
-
-            List<RouteBase> targetRoutes = new List<RouteBase>();
-            if(Routes.TryGetValue(RouteBase.GetFullSegmentString(staticSegments.ToArray()),out targetRoutes))
+            for (int i = segments.Length; i > 0; i--)
             {
-                foreach (RouteBase route in targetRoutes)
+                Span<string> staticSegments = segments.AsSpan<string>(0, i);
+                Span<string> dynamicSegments = segments.AsSpan<string>(i, segments.Length - i);
+
+                List<RouteBase>? routeList =  RouterTree.GetValue(staticSegments.ToArray());
+                if(routeList is not null)
                 {
-                    object[]? parameters = route.GetActionParameters(dynamicSegments.ToArray());
-                    if (parameters is not null)
-                        return (route, parameters);
-                }                    
+                    foreach (RouteBase route in routeList)
+                    {
+                        object[]? parameters = route.GetActionParameters(dynamicSegments.ToArray());
+                        if (parameters is not null)
+                            return (route, parameters);
+                    }
+                }
             }
-            return FindRoute(segments, lastStaticSegmentLenght - 1);
+            return null;
         }
     }
 }

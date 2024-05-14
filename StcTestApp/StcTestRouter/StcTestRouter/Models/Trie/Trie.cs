@@ -67,6 +67,22 @@ namespace StcTestRouter.Models.Trie
             }
         }
 
+        public TrieNode<T>? GetNode(string[] keys)
+        {
+            if (keys is null || keys?.Length == 0)
+                return null;
+            TrieNode<T>? currentNode = RootNodes.Find(node => node.Key == keys![0]);
+            for (int i = 0; i < keys!.Length; i++)
+            {
+                string currentKey = keys[i];
+                if (currentNode is null) return null;
+                if (currentNode.Key == currentKey) continue;
+                if (!currentNode.HasChildrenByKey(currentKey)) return null;
+                currentNode = currentNode.GetChildrenByKey(currentKey)!;
+            }
+            return currentNode;
+        }
+
         public T? GetValue (string[] keys)
         {
             if (keys is null || keys?.Length == 0)
@@ -81,25 +97,6 @@ namespace StcTestRouter.Models.Trie
                 currentNode = currentNode.GetChildrenByKey(currentKey)!;
             }
             return currentNode!.Value;
-        }
-
-        public void Remove(string[] keys)
-        {
-            if (keys is null || keys?.Length == 0) return;
-            TrieNode<T>? currentNode = RootNodes.Find(node => node.Key == keys![0]);
-            for (int i = 0; i < keys.Length; i++)
-            {
-                string currentKey = keys[i];
-                if (currentNode is null || !currentNode.HasChildrenByKey(currentKey))
-                    return;
-                currentNode = currentNode.GetChildrenByKey(currentKey);
-            }
-            if (currentNode is null) return;
-
-            if (currentNode.HasChildrens)
-                currentNode.Value = default(T);
-            else
-                currentNode = null;
         }
 
         public bool NodeExist(string[] keys)

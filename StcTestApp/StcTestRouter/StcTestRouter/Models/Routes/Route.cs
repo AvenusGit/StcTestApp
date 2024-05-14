@@ -90,5 +90,10 @@ namespace StcTestRouter.Models.Routes
                 return false;
             return true;
         }
+
+        public override Type[] GetDynamicSegmentsTypes()
+        {
+            return new Type[0];
+        }
     }
 }

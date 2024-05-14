@@ -65,6 +65,10 @@ namespace StcTestRouter.Models.Routes
         /// <returns></returns>
         public abstract bool CanCallAction(params object[] parameters);
         /// <summary>
+        /// Получить массив типов параметров маршрута
+        /// </summary>
+        public abstract Type[] GetDynamicSegmentsTypes();
+        /// <summary>
         /// Проверка соответствия количества динамических сегментов требуемому
         /// </summary>
         /// <param name="dynamicSegments">Массив динамических сегментов</param>
@@ -103,6 +107,15 @@ namespace StcTestRouter.Models.Routes
         {
             StringBuilder stringBuilder = new StringBuilder();
             return "/" + stringBuilder.AppendJoin('/', segments) + "/";
+        }
+        /// <summary>
+        /// Возрвщает набор статических сегментов без разделителей в виде массива
+        /// </summary>
+        /// <param name="staticSegments">Строка - набор статических сегментов с разделителем / </param>
+        /// <returns>Массив строк</returns>
+        public static string[] GetSplittedStaticSegments(string staticSegments)
+        {
+            return staticSegments.Split('/', StringSplitOptions.RemoveEmptyEntries);
         }
 
         public override bool Equals(object? obj)

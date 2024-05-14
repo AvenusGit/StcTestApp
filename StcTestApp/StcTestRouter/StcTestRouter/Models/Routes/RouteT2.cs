@@ -132,5 +132,10 @@ namespace StcTestRouter.Models.Routes
         {
             await Task.Run(() => Action.Invoke((T1)parameters[0], (T2)parameters[1]), cancellationToken);
         }
+
+        public override Type[] GetDynamicSegmentsTypes()
+        {
+            return new Type[] { typeof(T1), typeof(T2) };
+        }
     }
 }

@@ -2,6 +2,7 @@ using StcTestRouter.Interfaces;
 using StcTestRouter.Exceptions;
 using StcTestRouter.Models;
 using StcTestRouter.Models.Routes;
+using StcTestRouter.Models.Trie;
 
 namespace StcRouterTests
 {
@@ -12,19 +13,24 @@ namespace StcRouterTests
         public void AddRouteTest()
         {
             Router router = new Router();
-           
-            var action = (int a, float b) => { 
-                Console.WriteLine("Вызван делегат из теста добавления маршрута с двумя параметрами"); 
-            };
-            
-            router.RegisterRoute<int,float>("/a/b/c/{a:int}/{b:float}/", action);
 
-            List<RouteBase> list = new List<RouteBase>();
-            Assert.IsTrue(router.Routes.TryGetValue("/a/b/c/", out list));
-            Assert.IsTrue(list.Count == 1);
-            Assert.IsTrue(list?.FirstOrDefault()?.DynamicSegments?.Count() == 2);
-            Assert.IsTrue(list[0].DynamicSegments[0]?.Type == typeof(int));
-            Assert.IsTrue(list[0].DynamicSegments[1]?.Type == typeof(float));
+            var action = (int a, float b) => {
+                Console.WriteLine("Вызван делегат из теста добавления маршрута c двумя параметрами");
+            };
+
+            router.RegisterRoute<int, float>("/a/b/{a:int}/{b:float}/", action);
+            Assert.IsTrue(router.RouterTree.RootNodes.Count == 1);
+
+            TrieNode<List<RouteBase>>? parentNode = router.RouterTree.RootNodes.Find(node => node.Key == "a" && node.HasValue == false);
+            Assert.IsNotNull(parentNode);
+
+            TrieNode<List<RouteBase>>? childNode = parentNode.Childrens.Find(node => node.Key == "b" && node.HasValue == true);
+            Assert.IsNotNull(childNode);
+            Assert.IsTrue(childNode.HasValue == true && childNode.Value is not null && childNode.Value.FirstOrDefault()?.GetFullStaticSegments() == "/a/b/");
+            Assert.IsTrue(childNode.Value.FirstOrDefault()?.GetDynamicSegmentsTypes().Length == 2 &&
+                childNode.Value.FirstOrDefault()?.GetDynamicSegmentsTypes()[0] == typeof(int) &&
+                childNode.Value.FirstOrDefault()?.GetDynamicSegmentsTypes()[1] == typeof(float)
+                );
         }
 
         [TestMethod]

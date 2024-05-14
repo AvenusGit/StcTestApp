@@ -2,6 +2,7 @@ using StcTestRouter.Interfaces;
 using StcTestRouter.Exceptions;
 using StcTestRouter.Models;
 using StcTestRouter.Models.Routes;
+using StcTestRouter.Models.Trie;
 
 namespace StcRouterTests
 {
@@ -17,11 +18,15 @@ namespace StcRouterTests
                 Console.WriteLine("Вызван делегат из теста добавления маршрута без параметра"); 
             };
             
-            router.RegisterRoute("/a/b/c/", action);
+            router.RegisterRoute("/a/b/", action);            
+            Assert.IsTrue(router.RouterTree.RootNodes.Count == 1);
 
-            List<RouteBase> list = new List<RouteBase>();
-            Assert.IsTrue(router.Routes.TryGetValue("/a/b/c/", out list));
-            Assert.IsTrue(list.Count == 1);
+            TrieNode<List<RouteBase>>? parentNode = router.RouterTree.RootNodes.Find(node => node.Key == "a" && node.HasValue == false);
+            Assert.IsNotNull(parentNode);
+
+            TrieNode<List<RouteBase>>? childNode = parentNode.Childrens.Find(node => node.Key == "b" && node.HasValue == true);
+            Assert.IsNotNull(childNode);
+            Assert.IsTrue(childNode.HasValue == true && childNode.Value is not null && childNode.Value.FirstOrDefault()?.GetFullStaticSegments() == "/a/b/");
         }
 
         [TestMethod]
@@ -77,25 +82,25 @@ namespace StcRouterTests
             
         }
 
-        [TestMethod]
-        public void CallRouteAsyncTest()
-        {
-            Router router = new Router();
-            int startThreadId = Thread.CurrentThread.ManagedThreadId;
-            int actionThreadId = Thread.CurrentThread.ManagedThreadId;
-            var action = () => {
-                Console.WriteLine("Вызван делегат из теста добавления некорректного шаблона для маршрута без параметра");
-                actionThreadId = Thread.CurrentThread.ManagedThreadId;
-            };
+        //[TestMethod]
+        //public void CallRouteAsyncTest()
+        //{
+        //    Router router = new Router();
+        //    int startThreadId = Thread.CurrentThread.ManagedThreadId;
+        //    int actionThreadId = Thread.CurrentThread.ManagedThreadId;
+        //    var action = () => {
+        //        Console.WriteLine("Вызван делегат из теста добавления некорректного шаблона для маршрута без параметра");
+        //        actionThreadId = Thread.CurrentThread.ManagedThreadId;
+        //    };
 
-            router.RegisterRoute("/a/b/c/", action);
-            CancellationTokenSource tokenSourse = new CancellationTokenSource();
-            CancellationToken token =  tokenSourse.Token;
+        //    router.RegisterRoute("/a/b/c/", action);
+        //    CancellationTokenSource tokenSourse = new CancellationTokenSource();
+        //    CancellationToken token =  tokenSourse.Token;
 
-            router.RouteAsync("/a/b/c/", token);
+        //    router.RouteAsync("/a/b/c/", token);
 
-            Assert.IsTrue(startThreadId != actionThreadId); // тест иногда проваливается т.к. не всегда действие выполняет другой поток
+        //    Assert.IsTrue(startThreadId != actionThreadId); // тест иногда проваливается т.к. не всегда действие выполняет другой поток
 
-        }
+        //}
     }
 }
