@@ -37,7 +37,7 @@ namespace StcTestRouter.Models
         /// <returns>Boolean значение соответствия шаблону</returns>
         public static bool IsDynamicSegmentTemplate(string segmentTemplate)
         {
-            Regex regex = new Regex("^\\{[\\s\\S]*\\:(int|string|float|dateTime|bool)\\}$");
+            Regex regex = new Regex("^\\{[\\S]+\\:(int|string|float|dateTime|bool)\\}$");
             return regex.IsMatch(segmentTemplate);
         }
         /// <summary>

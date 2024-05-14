@@ -45,6 +45,11 @@ namespace StcTestRouter.Models.Routes
             {
                 // Проверка на наличие параметров в шаблоне
                 string[] segments = template.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                if (segments.Length == 0)
+                {
+                    route = null;
+                    return false;
+                }
                 List<string> staticSegments = new List<string>();
                 foreach (string segment in segments)
                 {

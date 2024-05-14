@@ -25,9 +25,9 @@ namespace StcTestRouter.Models.Routes
         /// </summary>
         /// <param name="template">Строка шаблона</param>
         /// <returns></returns>
-        protected static bool IsRoutePatternMath(string template)
+        public static bool IsRoutePatternMath(string template)
         {
-            Regex regex = new Regex("^\\/[\\s\\S]*\\/$");
+            Regex regex = new Regex("^\\/[\\S]+\\/$");
             return regex.IsMatch(template);
         }
 

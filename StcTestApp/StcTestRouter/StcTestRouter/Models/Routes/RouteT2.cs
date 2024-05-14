@@ -45,6 +45,11 @@ namespace StcTestRouter.Models.Routes
             if (IsRoutePatternMath(template))
             {
                 string[] segments = template.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                if (segments.Length == 0)
+                {
+                    route = null;
+                    return false;
+                }
                 List<string> staticSegments = new List<string>();
                 List<DynamicSegment?> dynamicSegments = new List<DynamicSegment?>();
 
