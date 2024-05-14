@@ -13,8 +13,18 @@ namespace StcTestRouter.Models.Trie
     /// <typeparam name="T">Тип хранимого значения</typeparam>
     public class Trie<T>
     {
+        /// <summary>
+        /// Корневые ноды
+        /// </summary>
         public List<TrieNode<T>> RootNodes { get; private set; } = new List<TrieNode<T>>();
 
+        /// <summary>
+        /// Добавление новой ноды
+        /// </summary>
+        /// <param name="keys">Путь к создаваемой ноде</param>
+        /// <param name="newValue">Значение ноды</param>
+        /// <exception cref="RouterException">Общая ошибка</exception>
+        /// <exception cref="RouteExistException">Ошибка, что нода уже существует</exception>
         public void Add(string[] keys, T newValue)
         {
             if (keys is null || keys?.Length == 0)
@@ -39,6 +49,12 @@ namespace StcTestRouter.Models.Trie
             else currentNode!.Value = newValue;
         }
 
+        /// <summary>
+        /// Метод попытки добавления новой ноды
+        /// </summary>
+        /// <param name="keys">Путь к создаваемой ноде</param>
+        /// <param name="newValue">Значение ноды</param>
+        /// <returns>True - если нода успешно добавлена, иначе false</returns>
         public bool TryAdd(string[] keys, T newValue)
         {
             if (keys is null || keys?.Length == 0)
@@ -67,6 +83,11 @@ namespace StcTestRouter.Models.Trie
             }
         }
 
+        /// <summary>
+        /// Петод получения ноды по ключам
+        /// </summary>
+        /// <param name="keys">Список ключей</param>
+        /// <returns>Нода или null</returns>
         public TrieNode<T>? GetNode(string[] keys)
         {
             if (keys is null || keys?.Length == 0)
@@ -83,6 +104,11 @@ namespace StcTestRouter.Models.Trie
             return currentNode;
         }
 
+        /// <summary>
+        /// Метод получения значения ноды по ключам
+        /// </summary>
+        /// <param name="keys">Список ключей</param>
+        /// <returns>Значение ноды или null</returns>
         public T? GetValue (string[] keys)
         {
             if (keys is null || keys?.Length == 0)
@@ -99,11 +125,16 @@ namespace StcTestRouter.Models.Trie
             return currentNode!.Value;
         }
 
+        /// <summary>
+        /// Метод проверки существования ноды
+        /// </summary>
+        /// <param name="keys">Набор ключей</param>
+        /// <returns>True - если существует, иначе false</returns>
         public bool NodeExist(string[] keys)
         {
             if (keys is null || keys?.Length == 0) return false;
             TrieNode<T>? currentNode = RootNodes.Find(node => node.Key == keys![0]);
-            for (int i = 0; i < keys.Length; i++)
+            for (int i = 0; i < keys!.Length; i++)
             {
                 string currentKey = keys[i];
                 if (currentNode is null) return false;
@@ -115,6 +146,11 @@ namespace StcTestRouter.Models.Trie
             return currentNode is not null;
         }
 
+        /// <summary>
+        /// Метод проверки существования заполненной ноды (со значением)
+        /// </summary>
+        /// <param name="keys">Набор ключей</param>
+        /// <returns>True - если существует, иначе false</returns>
         public bool NodeWithValueExist (string[] keys)
         {
             if (keys is null || keys?.Length == 0) return false;
