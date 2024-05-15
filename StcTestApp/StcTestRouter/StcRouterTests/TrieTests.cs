@@ -50,6 +50,16 @@ namespace StcRouterTests
         }
 
         [TestMethod]
+        public void GetValueSameStaticSegmentTest()
+        {
+            Trie<int> trie = new Trie<int>();
+
+            trie.Add(["a", "a"], 400);
+            Assert.AreEqual(trie.GetValue(["a", "c"]), default(int));
+            Assert.IsTrue(trie.GetValue(["a", "a"]) == 400);
+        }
+
+        [TestMethod]
         public void GetNodeTest() 
         {
             Trie<int> trie = new Trie<int>();

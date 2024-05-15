@@ -69,9 +69,9 @@ namespace StcTestRouter.Models.Trie
                     if(currentNode is null)
                     {
                         currentNode = new TrieNode<T>(currentKey);
-                        RootNodes.Add(currentNode);
-                        continue;
-                    }                  
+                        RootNodes.Add(currentNode);                       
+                    }
+                    continue;
                 }
                 //if (currentNode.Key == currentKey) continue;
                 if (!currentNode.HasChildrenByKey(currentKey))
