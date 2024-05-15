@@ -59,17 +59,21 @@ namespace StcTestRouter.Models.Trie
         {
             if (keys is null || keys?.Length == 0)
                 return false;
-            TrieNode<T>? currentNode = RootNodes.Find(node => node.Key == keys![0]);
+            TrieNode<T>? currentNode = null;
             for (int i = 0; i < keys!.Length; i++)
             {
                 string currentKey = keys[i];
                 if (currentNode is null)
                 {
-                    currentNode = new TrieNode<T>(currentKey);
-                    RootNodes.Add(currentNode);
-                    continue;
+                    currentNode = RootNodes.Find(node => node.Key == keys![0]);
+                    if(currentNode is null)
+                    {
+                        currentNode = new TrieNode<T>(currentKey);
+                        RootNodes.Add(currentNode);
+                        continue;
+                    }                  
                 }
-                if (currentNode.Key == currentKey) continue;
+                //if (currentNode.Key == currentKey) continue;
                 if (!currentNode.HasChildrenByKey(currentKey))
                     currentNode.AddChildren(currentKey);
                 currentNode = currentNode.GetChildrenByKey(currentKey)!;

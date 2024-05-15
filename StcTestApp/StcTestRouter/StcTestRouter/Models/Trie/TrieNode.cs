@@ -136,7 +136,7 @@ namespace StcTestRouter.Models.Trie
 
         public override string ToString()
         {
-            return $"Key:{Key},Childrens:{Childrens.Count}, Value:{Value?.ToString()}";
+            return $"Key:{Key},Childrens:{Childrens.Count}, HasValue:{HasValue}";
         }
     }
 }

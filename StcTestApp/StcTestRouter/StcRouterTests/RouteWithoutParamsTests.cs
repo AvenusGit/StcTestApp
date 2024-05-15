@@ -37,6 +37,33 @@ namespace StcRouterTests
         }
 
         [TestMethod]
+        public void AddRouteWithSameSegmentsTest()
+        {
+            Router router = new Router();
+
+            var action = () => {
+                Console.WriteLine("Вызван делегат из теста добавления маршрута без параметра");
+            };
+
+            router.RegisterRoute("/a/a/", action);
+            Assert.IsTrue(router.RouterTree.RootNodes.Count == 1);
+
+            TrieNode<Dictionary<RouteTypeParams, RouteBase>>? parentNode = router.RouterTree.RootNodes.Find(node => node.Key == "a" && node.HasValue == false);
+            Assert.IsNotNull(parentNode);
+
+            TrieNode<Dictionary<RouteTypeParams, RouteBase>>? childNode = parentNode.Childrens.Find(node => node.Key == "a" && node.HasValue == true);
+            Assert.IsNotNull(childNode);
+            Assert.IsTrue(childNode.HasValue == true && childNode.Value is not null);
+
+            var one = new RouteTypeParams(new Type[0]).GetHashCode();
+            var two = childNode.Value.FirstOrDefault().Key.GetHashCode();
+
+            RouteBase? route = childNode.Value.GetValueOrDefault(new RouteTypeParams(new Type[0]));
+            Assert.IsNotNull(route);
+            Assert.IsTrue(route.GetFullStaticSegments() == "/a/a/");
+        }
+
+        [TestMethod]
         public void AddSameRoutesTest()
         {
             Router router = new Router();
