@@ -69,6 +69,11 @@ namespace StcTestRouter.Models.Routes
         /// </summary>
         public abstract Type[] GetDynamicSegmentsTypes();
         /// <summary>
+        /// Метод получения структуры для хранения описания типов параметров маршрута
+        /// </summary>
+        /// <returns>Структура RouteTypeParams</returns>
+        public abstract RouteTypeParams GetRouteTypeParams();
+        /// <summary>
         /// Проверка соответствия количества динамических сегментов требуемому
         /// </summary>
         /// <param name="dynamicSegments">Массив динамических сегментов</param>

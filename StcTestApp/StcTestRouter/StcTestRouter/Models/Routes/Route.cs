@@ -100,5 +100,10 @@ namespace StcTestRouter.Models.Routes
         {
             return new Type[0];
         }
+
+        public override RouteTypeParams GetRouteTypeParams()
+        {
+            return new RouteTypeParams(new Type[0]);
+        }
     }
 }

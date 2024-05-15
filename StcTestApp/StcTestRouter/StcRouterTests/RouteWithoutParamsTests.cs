@@ -21,12 +21,19 @@ namespace StcRouterTests
             router.RegisterRoute("/a/b/", action);            
             Assert.IsTrue(router.RouterTree.RootNodes.Count == 1);
 
-            TrieNode<List<RouteBase>>? parentNode = router.RouterTree.RootNodes.Find(node => node.Key == "a" && node.HasValue == false);
+            TrieNode<Dictionary<RouteTypeParams, RouteBase>>? parentNode = router.RouterTree.RootNodes.Find(node => node.Key == "a" && node.HasValue == false);
             Assert.IsNotNull(parentNode);
 
-            TrieNode<List<RouteBase>>? childNode = parentNode.Childrens.Find(node => node.Key == "b" && node.HasValue == true);
+            TrieNode<Dictionary<RouteTypeParams, RouteBase>>? childNode = parentNode.Childrens.Find(node => node.Key == "b" && node.HasValue == true);
             Assert.IsNotNull(childNode);
-            Assert.IsTrue(childNode.HasValue == true && childNode.Value is not null && childNode.Value.FirstOrDefault()?.GetFullStaticSegments() == "/a/b/");
+            Assert.IsTrue(childNode.HasValue == true && childNode.Value is not null);
+
+            var one = new RouteTypeParams(new Type[0]).GetHashCode();
+            var two  = childNode.Value.FirstOrDefault().Key.GetHashCode();
+
+            RouteBase? route = childNode.Value.GetValueOrDefault(new RouteTypeParams(new Type[0]));
+            Assert.IsNotNull(route);
+            Assert.IsTrue(route.GetFullStaticSegments() == "/a/b/");
         }
 
         [TestMethod]

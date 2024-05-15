@@ -21,6 +21,7 @@ namespace StcTestRouter.Models
             Name = name;
             Type= type;
         }
+
         /// <summary>
         /// Имя сегмента из шаблона
         /// </summary>
@@ -46,7 +47,7 @@ namespace StcTestRouter.Models
         /// <param name="typeName">Текстовое описание</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static Type GetTypeByString(string typeName)
+        public static Type? GetTypeByString(string typeName)
         {
             switch (typeName)
             {
@@ -71,7 +72,13 @@ namespace StcTestRouter.Models
                 dynamicSegmentTemplate = dynamicSegmentTemplate.Replace("{", "");
                 dynamicSegmentTemplate = dynamicSegmentTemplate.Replace("}", "");
                 string[] dynamicSegmentsParts = dynamicSegmentTemplate.Split(':');
-                dynamicSegment = new DynamicSegment(dynamicSegmentsParts[0], GetTypeByString(dynamicSegmentsParts[1]));
+                Type? dynamicSegmentType = GetTypeByString(dynamicSegmentsParts[1]);
+                if(dynamicSegmentType is null || String.IsNullOrEmpty(dynamicSegmentsParts[0]))
+                {
+                    dynamicSegment = null;
+                    return false;
+                }
+                dynamicSegment = new DynamicSegment(dynamicSegmentsParts[0], dynamicSegmentType);
                 return true;
             }
             else
@@ -125,6 +132,35 @@ namespace StcTestRouter.Models
 
             convertedValue = (T)args[1];
             return true;
+        }
+        
+        /// <summary>
+        /// Возвращает тип значения из строки. Попытка привести к типу проводится последовательно, относительно предполагаемой частоты использования.
+        /// Если не удалось привести ни к какому типу - возвращается тип строка. Если входной параметр пуст или null - возвращает null.
+        /// </summary>
+        /// <param name="paramValue">Строка параметра маршрута</param>
+        /// <returns>Тип значения входной строки</returns>
+        public static Type? GetTypeFromParamValue(string paramValue)
+        {
+            if (string.IsNullOrEmpty(paramValue)) return null;
+
+            bool boolean;
+            if (DynamicSegment.TryConvertValue<bool>(paramValue, out boolean))
+                return typeof(bool);
+
+            int integer;
+            if (DynamicSegment.TryConvertValue<int>(paramValue, out integer))
+                return typeof(int);
+
+            float floatValue;
+            if (DynamicSegment.TryConvertValue<float>(paramValue, out floatValue))
+                return typeof(float);
+
+            DateTime dateTime;
+            if (DynamicSegment.TryConvertValue<DateTime>(paramValue, out dateTime))
+                return typeof(DateTime);
+
+            return typeof(string);
         }
 
         public override bool Equals(object? obj)

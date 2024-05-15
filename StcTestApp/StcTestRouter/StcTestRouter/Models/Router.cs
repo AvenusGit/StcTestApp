@@ -15,13 +15,13 @@ namespace StcTestRouter.Models
         /// </summary>
         public Router() 
         {
-            RouterTree = new Trie<List<RouteBase>>();
+            RouterTree = new Trie<Dictionary<RouteTypeParams,RouteBase>>();
         }
         /// <summary>
-        /// Префиксное дерево маршрутов. Каждый узел имеет ключ в виде строки (не char!), значение подразумевает словарь маршрутов, где ключ - массив типов параметров маршрутов,
+        /// Префиксное дерево маршрутов. Каждый узел имеет ключ в виде строки (не char!), значение подразумевает словарь маршрутов, где ключ - структура типов параметров маршрутов,
         /// значение - сам маршрут. Несколько маршрутов с одним и тем же набором статических сегментов и набором параметров (в том числе и по последовательности) быть не должно
         /// </summary>
-        public Trie<List<RouteBase>> RouterTree { get; set; }
+        public Trie<Dictionary<RouteTypeParams, RouteBase>> RouterTree { get; set; }
 
         public void RegisterRoute(string template, Action action)
         {
@@ -30,23 +30,23 @@ namespace StcTestRouter.Models
             {
                 if (route!.DynamicSegments?.Count != 0)
                     throw new RouterWrongParamsCountExceptions();
-                TrieNode<List<RouteBase>>? node = RouterTree.GetNode(RouteBase.GetSplittedStaticSegments(route.GetFullStaticSegments()));
+                TrieNode<Dictionary<RouteTypeParams, RouteBase>>? node = RouterTree.GetNode(RouteBase.GetSplittedStaticSegments(route.GetFullStaticSegments()));
                 if (node is null)
                 {
-                    if (!RouterTree.TryAdd(RouteBase.GetSplittedStaticSegments(route.GetFullStaticSegments()), new List<RouteBase>() { route }))
+                    if (!RouterTree.TryAdd(RouteBase.GetSplittedStaticSegments(route.GetFullStaticSegments()), new Dictionary<RouteTypeParams, RouteBase>() 
+                        { { new RouteTypeParams(new Type[0]), route } }))
                         throw new RouterException("Не удалось добавить ноду, неизвестная ошибка");
                 }
                 else
                 {
                     if (node.HasValue)
                     {
-                        foreach (RouteBase savedRoute in node.Value!)
-                            if(savedRoute.Equals(route))
-                                throw new RouteExistException();
-                        node.Value?.Add(route);
-                    }                        
+                        if (!node.Value!.TryAdd(route.GetRouteTypeParams(), route))
+                            throw new RouteExistException();
+                    }
                     else
-                        node.Value = new List<RouteBase>() { route};
+                        node.Value = new Dictionary<RouteTypeParams, RouteBase>()
+                        { { new RouteTypeParams(), route } };
                 } 
             }
             else
@@ -60,23 +60,23 @@ namespace StcTestRouter.Models
             {
                 if (route!.DynamicSegments?.Count != 1)
                     throw new RouterWrongParamsCountExceptions();
-                TrieNode<List<RouteBase>>? node = RouterTree.GetNode(RouteBase.GetSplittedStaticSegments(route.GetFullStaticSegments()));
+                TrieNode<Dictionary<RouteTypeParams, RouteBase>>? node = RouterTree.GetNode(RouteBase.GetSplittedStaticSegments(route.GetFullStaticSegments()));
                 if (node is null)
                 {
-                    if (!RouterTree.TryAdd(RouteBase.GetSplittedStaticSegments(route.GetFullStaticSegments()), new List<RouteBase>() { route }))
+                    if (!RouterTree.TryAdd(RouteBase.GetSplittedStaticSegments(route.GetFullStaticSegments()), new Dictionary<RouteTypeParams, RouteBase>()
+                        { { new RouteTypeParams(new Type[1] {typeof(T)}), route } }))
                         throw new RouterException("Не удалось добавить ноду, неизвестная ошибка");
                 }
                 else
                 {
                     if (node.HasValue)
                     {
-                        foreach (RouteBase savedRoute in node.Value!)
-                            if (savedRoute.Equals(route))
-                                throw new RouteExistException();
-                        node.Value?.Add(route);
+                        if (!node.Value!.TryAdd(route.GetRouteTypeParams(), route))
+                            throw new RouteExistException();
                     }
                     else
-                        node.Value = new List<RouteBase>() { route };
+                        node.Value = new Dictionary<RouteTypeParams, RouteBase>()
+                        { { new RouteTypeParams(), route } };
                 }
             }
             else
@@ -90,23 +90,23 @@ namespace StcTestRouter.Models
             {
                 if (route!.DynamicSegments?.Count != 2)
                     throw new RouterWrongParamsCountExceptions();
-                TrieNode<List<RouteBase>>? node = RouterTree.GetNode(RouteBase.GetSplittedStaticSegments(route.GetFullStaticSegments()));
+                TrieNode <Dictionary<RouteTypeParams, RouteBase>>? node = RouterTree.GetNode(RouteBase.GetSplittedStaticSegments(route.GetFullStaticSegments()));
                 if (node is null)
                 {
-                    if (!RouterTree.TryAdd(RouteBase.GetSplittedStaticSegments(route.GetFullStaticSegments()), new List<RouteBase>() { route }))
+                    if (!RouterTree.TryAdd(RouteBase.GetSplittedStaticSegments(route.GetFullStaticSegments()), new Dictionary<RouteTypeParams, RouteBase>()
+                        { { new RouteTypeParams(new Type[2] {typeof(T1), typeof(T2)}), route } }))
                         throw new RouterException("Не удалось добавить ноду, неизвестная ошибка");
                 }
                 else
                 {
                     if (node.HasValue)
                     {
-                        foreach (RouteBase savedRoute in node.Value!)
-                            if (savedRoute.Equals(route))
-                                throw new RouteExistException();
-                        node.Value?.Add(route);
+                        if (!node.Value!.TryAdd(route.GetRouteTypeParams(), route))
+                            throw new RouteExistException();
                     }
                     else
-                        node.Value = new List<RouteBase>() { route };
+                        node.Value = new Dictionary<RouteTypeParams, RouteBase>()
+                        { { new RouteTypeParams(), route } };
                 }
             }
             else
@@ -158,16 +158,18 @@ namespace StcTestRouter.Models
                 Span<string> staticSegments = segments.AsSpan<string>(0, i);
                 Span<string> dynamicSegments = segments.AsSpan<string>(i, segments.Length - i);
 
-                List<RouteBase>? routeList =  RouterTree.GetValue(staticSegments.ToArray());
-                if(routeList is not null)
+                Dictionary<RouteTypeParams, RouteBase>? routeList = RouterTree.GetValue(staticSegments.ToArray());
+                if (routeList is not null)
                 {
-                    foreach (RouteBase route in routeList)
+                    RouteBase? findedRoute;
+                    if (routeList.TryGetValue(new RouteTypeParams(dynamicSegments.ToArray(), false), out findedRoute))
                     {
-                        object[]? parameters = route.GetActionParameters(dynamicSegments.ToArray());
+                        object[]? parameters = findedRoute.GetActionParameters(dynamicSegments.ToArray());
                         if (parameters is not null)
-                            return (route, parameters);
+                            return (findedRoute, parameters);
+                        else throw new RouterException("Ошибка маршрутизатора: маршрут был однозначно определен, но не удалось применить параметры");
                     }
-                }
+                }               
             }
             return null;
         }

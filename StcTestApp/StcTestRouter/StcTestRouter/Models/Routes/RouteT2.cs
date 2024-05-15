@@ -142,5 +142,10 @@ namespace StcTestRouter.Models.Routes
         {
             return new Type[] { typeof(T1), typeof(T2) };
         }
+
+        public override RouteTypeParams GetRouteTypeParams()
+        {
+            return new RouteTypeParams(GetDynamicSegmentsTypes());
+        }
     }
 }
